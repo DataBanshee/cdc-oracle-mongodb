@@ -1,0 +1,23 @@
+version: '3.2'
+services:
+    oracle:
+     image: sath89/oracle-12c
+     expose:
+      - "8080"
+      - "1521"
+    mongodb:
+     image: library/mongo
+     expose:
+      - "27017"
+    eclipse:
+     image: psharkey/eclipse
+     links:
+      - oracle
+      - mongodb
+     volumes:
+      - /tmp/.X11-unix:/tmp/.X11-unix
+      - ${HOME}/.m2:/root/.m2
+      - ${HOME}/dev:/root/workspace
+     environment:
+      - DISPLAY=:0.0
+        
