@@ -5,10 +5,20 @@ services:
      expose:
       - "8080"
       - "1521"
+      - "6800"
+     environment:
+      - MANUAL_DBCA=true
+      - VNC_PASSWORD=password
+      - IMPORT_FROM_VOLUME=${IMPORT_FROM_VOLUME}
+     volumes:
+      - /mnt/data0/oracle:/u01/app/oracle:rw
     mongodb:
      image: library/mongo
      expose:
       - "27017"
+     volumes:
+      - /mnt/data0/mongo:/data/db:rw
+      - /tmp:/tmp:rw
     eclipse:
      image: psharkey/eclipse
      links:
