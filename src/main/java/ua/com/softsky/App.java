@@ -8,6 +8,9 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
 import java.util.stream.IntStream;
 
 import org.apache.commons.cli.CommandLine;
@@ -17,12 +20,13 @@ import org.apache.commons.cli.Options;
 import org.apache.commons.cli.ParseException;
 import org.apache.jackrabbit.uuid.UUID;
 
+
 /**
  * Hello world!
  *
  */
 public class App {
-	public static void main(String[] args) throws SQLException, ClassNotFoundException, ParseException {
+	public static void main(String[] args) throws SQLException, ClassNotFoundException, ParseException, InterruptedException {
 
 		System.out.println("-------- Oracle JDBC Connection Testing ------");
 
@@ -91,13 +95,13 @@ public class App {
 		stmt.executeUpdate(sql);
 		
 		sql = "CREATE TABLE tor_contact " + "(per_title VARCHAR2(15)," + "last_name VARCHAR2(100),"
-				+ "fst_name VARCHAR2(100)," + "email_addr VARCHAR2(150)," + "home_ph_name VARCHAR2(40))";
+				+ "fst_name VARCHAR2(100)," + "email_addr VARCHAR2(150)," + "home_ph_num VARCHAR2(40))";
 
 		stmt.executeUpdate(sql);
 
 		sql = "CREATE TABLE tor_asset " + "(serv_acct_id varchar2(16)," + "serial_num VARCHAR2(30)," + "shipt_dt DATE,"
 				+ "oper_status_cd VARCHAR2(10)," + "cfg_state_cd VARCHAR2(10)," + "last_upd DATE,"
-				+ "row_id VARCHAR2(16)," + "par_asset_id VARCHAR2(16)," + "prod_id VARCHAR2(16),"
+				+ "row_id VARCHAR2(16)," + "per_asset_id VARCHAR2(16)," + "prod_id VARCHAR2(16),"
 				+ "status_cd VARCHAR2(16))";
 
 		stmt.executeUpdate(sql);
@@ -119,7 +123,50 @@ public class App {
 		}
 	}
 
-	private static void fillTables(Connection conn) throws SQLException {
+	private static void fillTables(Connection conn) throws InterruptedException {
+		ExecutorService service = Executors.newCachedThreadPool();
+		service.submit(new Runnable() {
+			
+			@Override
+			public void run() {
+				try {
+					fillTorOrgExt(conn);
+				} catch (SQLException e) {
+					e.printStackTrace();
+				}
+				
+			}
+		});
+		service.submit(new Runnable() {
+			
+			@Override
+			public void run() {
+				try {
+					fillTorContact(conn);
+				} catch (SQLException e) {
+					e.printStackTrace();
+				}
+				
+			}
+		});
+		
+		service.submit(new Runnable() {
+			
+			@Override
+			public void run() {
+				try {
+					fillTorAsset(conn);
+				} catch (SQLException e) {
+					e.printStackTrace();
+				}
+				
+			}
+		});
+		
+		service.awaitTermination(1, TimeUnit.DAYS);
+	}
+
+	private static void fillTorOrgExt(Connection conn) throws SQLException {
 		final String sql = "INSERT INTO tor_org_ext (row_id, market_type_cd, alias_name, x_system_fact, x_date_migration, x_flag_pro, last_upd, x_id_nc, x_rcs) VALUES (?,?,?,?,?,?,?,?,?)";
 		PreparedStatement insert = conn.prepareStatement(sql);
 		conn.setAutoCommit(false);
@@ -144,7 +191,7 @@ public class App {
 						//System.out.println("Large batch executed with result:" + result[0]);
 						if( i % 10000 == 0){
 							conn.commit();
-							System.out.println(i + " items inserted");
+							System.out.println(i + " items inserted into tor_org_ext");
 						}
 					} else {
 						throw new SQLException("executeLargeBatch failed with:" + result[0]);
@@ -155,7 +202,77 @@ public class App {
 				e.printStackTrace();
 			}
 		});
+	}
+	
+	private static void fillTorContact(Connection conn) throws SQLException {
+		final String sql = "INSERT INTO tor_contact (per_title, last_name, fst_name, email_addr, home_ph_num) VALUES (?,?,?,?,?)";
+		PreparedStatement insert = conn.prepareStatement(sql);
+		conn.setAutoCommit(false);
 
+		IntStream.range(0, 1000 * 1000).forEachOrdered(i -> { 
+			try {
+				insert.setString(1, getRandomString(15));
+				insert.setString(2, getRandomString(100));
+				insert.setString(3, getRandomString(100));
+				insert.setString(4, getRandomString(150));
+				insert.setString(5, getRandomString(40));
+				insert.addBatch();
+				
+				if (i % 1000 == 0){
+					long[] result = insert.executeLargeBatch();
+					if((result.length > 0) && (result[0] == 1)){ // FIXME: change 1 to constant
+						//System.out.println("Large batch executed with result:" + result[0]);
+						if( i % 10000 == 0){
+							conn.commit();
+							System.out.println(i + " items inserted into tor_contact");
+						}
+					} else {
+						throw new SQLException("executeLargeBatch failed with:" + result[0]);
+					}
+				}
+			} catch (SQLException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		});
+	}
+	
+	private static void fillTorAsset(Connection conn) throws SQLException {
+		final String sql = "INSERT INTO tor_asset (serv_acct_id, serial_num, shipt_dt, oper_status_cd, cfg_state_cd, last_upd, row_id, per_asset_id, prod_id, status_cd) VALUES (?,?,?,?,?,?,?,?,?,?)";
+		PreparedStatement insert = conn.prepareStatement(sql);
+		conn.setAutoCommit(false);
+
+		IntStream.range(0, 1000 * 1000).forEachOrdered(i -> { 
+			try {
+				insert.setString(1, getRandomString(16));
+				insert.setString(2, getRandomString(30));
+				insert.setDate(3, new Date(new java.util.Date().getTime()));
+				insert.setString(4, getRandomString(10));
+				insert.setString(5, getRandomString(10));
+				insert.setDate(6, new Date(new java.util.Date().getTime()));
+				insert.setString(7, getRandomString(16));
+				insert.setString(8, getRandomString(16));
+				insert.setString(9, getRandomString(16));
+				insert.setString(10, getRandomString(10));
+				insert.addBatch();
+				
+				if (i % 1000 == 0){
+					long[] result = insert.executeLargeBatch();
+					if((result.length > 0) && (result[0] == 1)){ // FIXME: change 1 to constant
+						//System.out.println("Large batch executed with result:" + result[0]);
+						if( i % 10000 == 0){
+							conn.commit();
+							System.out.println(i + " items inserted into tor_asset");
+						}
+					} else {
+						throw new SQLException("executeLargeBatch failed with:" + result[0]);
+					}
+				}
+			} catch (SQLException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		});
 	}
 
 	private static String getRandomString(final int len) {
