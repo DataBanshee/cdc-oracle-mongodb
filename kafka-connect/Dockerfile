@@ -10,6 +10,8 @@ RUN echo "name=oracle-jdbc-connector \
 	tasks.max=1 \
 	connection.url=jdbc:datadirect:oracle://oracle:1521;User=system;Password=oracle;Database=xe \
 	mode=timestamp+incrementing \
+        key.converter=io.confluent.connect.avro.AvroConverter \
+        key.converter.schema.registry.url=http://kafka:8081 \
 	incrementing.column.name=<id> \
 	timestamp.column.name=<modifiedtimestamp> \
 	topic.prefix=jdbc_\
@@ -17,6 +19,8 @@ RUN echo "name=oracle-jdbc-connector \
 
 RUN echo "name=mongodb-jdbc-sink-connector \
 	connector.class=io.confluent.connect.jdbc.JdbcSinkConnector \
+        key.converter=io.confluent.connect.avro.AvroConverter \
+        key.converter.schema.registry.url=http://localhost:8081 \
 	tasks.max=1 \
 	topics= \
 	connection.url=jdbc:datadirect:mongodb://mongo;Database=cache \
