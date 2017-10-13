@@ -19,6 +19,11 @@ services:
      volumes:
       - /mnt/data0/mongo:/data/db:rw
       - /tmp:/tmp:rw
+    kafka:
+     image: softsky/kafka
+     expose:
+      - "2181"
+      - "9092"
     eclipse:
      image: psharkey/eclipse
      links:
