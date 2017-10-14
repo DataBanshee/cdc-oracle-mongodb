@@ -52,13 +52,6 @@
 			<artifactId>commons-cli</artifactId>
 			<version>1.4</version>
 		</dependency>
-		<!-- https://mvnrepository.com/artifact/org.apache.jackrabbit/jackrabbit-core -->
-		<dependency>
-		    <groupId>org.apache.jackrabbit</groupId>
-		    <artifactId>jackrabbit-jcr-commons</artifactId>
-		    <version>2.15.6</version>
-		</dependency>
-
 		<dependency>
 			<groupId>com.github.noraui</groupId>
 			<artifactId>ojdbc8</artifactId>
