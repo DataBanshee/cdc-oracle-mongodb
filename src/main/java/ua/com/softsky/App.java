@@ -20,8 +20,6 @@ import org.apache.commons.cli.DefaultParser;
 import org.apache.commons.cli.Options;
 import org.apache.commons.cli.ParseException;
 
-
-
 /**
  * Hello world!
  *
@@ -29,10 +27,12 @@ import org.apache.commons.cli.ParseException;
 public class App {
 	private static final class TorAssetFiller implements Runnable {
 		Connection conn;
+
 		public TorAssetFiller(Connection conn) {
 			super();
 			this.conn = conn;
 		}
+
 		@Override
 		public void run() {
 			try {
@@ -40,7 +40,7 @@ public class App {
 				PreparedStatement insert = conn.prepareStatement(sql);
 				conn.setAutoCommit(false);
 
-				IntStream.range(0, 1000 * 1000).forEachOrdered(i -> { 
+				IntStream.range(0, 1000 * 1000).forEachOrdered(i -> {
 					try {
 						insert.setString(1, getRandomString(16));
 						insert.setString(2, getRandomString(30));
@@ -53,12 +53,17 @@ public class App {
 						insert.setString(9, getRandomString(16));
 						insert.setString(10, getRandomString(10));
 						insert.addBatch();
-						
-						if (i % 1000 == 0){
+
+						if (i % 1000 == 0) {
 							long[] result = insert.executeLargeBatch();
-							if((result.length > 0) && (result[0] == 1)){ // FIXME: change 1 to constant
-								//System.out.println("Large batch executed with result:" + result[0]);
-								if( i % 10000 == 0){
+							if ((result.length > 0) && (result[0] == 1)) { // FIXME:
+																			// change
+																			// 1
+																			// to
+																			// constant
+								// System.out.println("Large batch executed with
+								// result:" + result[0]);
+								if (i % 10000 == 0) {
 									conn.commit();
 									System.out.println(i + " items inserted into tor_asset");
 								}
@@ -74,63 +79,17 @@ public class App {
 			} catch (SQLException e) {
 				e.printStackTrace();
 			}
-			
+
 		}
 	}
 
 	private static final class TorContactFiller implements Runnable {
 		Connection conn;
+
 		public TorContactFiller(Connection conn) {
 			super();
 			this.conn = conn;
 		}
-		@Override
-		public void run() {
-			try {
-				final String sql = "INSERT INTO tor_contact (per_title, last_name, fst_name, email_addr, home_ph_num) VALUES (?,?,?,?,?)";
-				PreparedStatement insert = conn.prepareStatement(sql);
-				conn.setAutoCommit(false);
-
-				IntStream.range(0, 1000 * 1000).forEachOrdered(i -> { 
-					try {
-						insert.setString(1, getRandomString(15));
-						insert.setString(2, getRandomString(100));
-						insert.setString(3, getRandomString(100));
-						insert.setString(4, getRandomString(150));
-						insert.setString(5, getRandomString(40));
-						insert.addBatch();
-						
-						if (i % 1000 == 0){
-							long[] result = insert.executeLargeBatch();
-							if((result.length > 0) && (result[0] == 1)){ // FIXME: change 1 to constant
-								//System.out.println("Large batch executed with result:" + result[0]);
-								if( i % 10000 == 0){
-									conn.commit();
-									System.out.println(i + " items inserted into tor_contact");
-								}
-							} else {
-								throw new SQLException("executeLargeBatch failed with:" + result[0]);
-							}
-						}
-					} catch (SQLException e) {
-						// TODO Auto-generated catch block
-						e.printStackTrace();
-					}
-				});
-				} catch (SQLException e) {
-				e.printStackTrace();
-			}
-			
-		}
-	}
-
-	private static final class TorOrgExtFiller implements Runnable {
-		Connection conn;
-		
-		public TorOrgExtFiller(Connection conn) {
-			super();
-			this.conn = conn;
-		}
 
 		@Override
 		public void run() {
@@ -139,7 +98,7 @@ public class App {
 				PreparedStatement insert = conn.prepareStatement(sql);
 				conn.setAutoCommit(false);
 
-				IntStream.range(0, 1000 * 1000).forEachOrdered(i -> { 
+				IntStream.range(0, 1000 * 1000).forEachOrdered(i -> {
 					try {
 						insert.setString(1, getRandomString(15));
 						insert.setString(2, getRandomString(100));
@@ -147,12 +106,17 @@ public class App {
 						insert.setString(4, getRandomString(150));
 						insert.setString(5, getRandomString(40));
 						insert.addBatch();
-						
-						if (i % 1000 == 0){
+
+						if (i % 1000 == 0) {
 							long[] result = insert.executeLargeBatch();
-							if((result.length > 0) && (result[0] == 1)){ // FIXME: change 1 to constant
-								//System.out.println("Large batch executed with result:" + result[0]);
-								if( i % 10000 == 0){
+							if ((result.length > 0) && (result[0] == 1)) { // FIXME:
+																			// change
+																			// 1
+																			// to
+																			// constant
+								// System.out.println("Large batch executed with
+								// result:" + result[0]);
+								if (i % 10000 == 0) {
 									conn.commit();
 									System.out.println(i + " items inserted into tor_contact");
 								}
@@ -168,11 +132,70 @@ public class App {
 			} catch (SQLException e) {
 				e.printStackTrace();
 			}
-			
+
 		}
 	}
 
-	public static void main(String[] args) throws SQLException, ClassNotFoundException, ParseException, InterruptedException {
+	private static final class TorOrgExtFiller implements Runnable {
+		Connection conn;
+
+		public TorOrgExtFiller(Connection conn) {
+			super();
+			this.conn = conn;
+		}
+
+		@Override
+		public void run() {
+			try {
+				final String sql = "INSERT INTO tor_org_ext (row_id, market_type_cd, alias_name, x_system_fact, x_date_migration, x_flag_pro, last_upd, x_id_nc, x_rcs) VALUES (?,?,?,?,?,?,?,?,?)";
+				PreparedStatement insert = conn.prepareStatement(sql);
+				conn.setAutoCommit(false);
+
+				IntStream.range(0, 1000 * 1000).forEachOrdered(i -> {
+					try {
+						String stringIndex = new Integer(i).toString();
+						insert.setString(1, stringIndex.substring(0, Math.min(stringIndex.length() - 1, 15)));
+						insert.setString(2, getRandomString(20));
+						insert.setString(3, getRandomString(150));
+						insert.setString(4, getRandomString(50));
+						insert.setDate(5, new Date(new java.util.Date().getTime()));
+						insert.setString(6, getRandomString(20));
+						insert.setDate(7, new Date(new java.util.Date().getTime()));
+						insert.setString(8, getRandomString(18));
+						insert.setString(9, getRandomString(30));
+						insert.addBatch();
+
+						if (i % 1000 == 0) {
+							long[] result = insert.executeLargeBatch();
+							if ((result.length > 0) && (result[0] == 1)) { // FIXME:
+																			// change
+																			// 1
+																			// to
+																			// constant
+								// System.out.println("Large batch executed with
+								// result:" + result[0]);
+								if (i % 10000 == 0) {
+									conn.commit();
+									System.out.println(i + " items inserted into tor_org_ext");
+								}
+							} else {
+								throw new SQLException("executeLargeBatch failed with:" + result[0]);
+							}
+						}
+					} catch (SQLException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					}
+				});
+			} catch (SQLException ex) {
+				ex.printStackTrace();
+			}
+
+		}
+	}
+
+	public static void main(String[] args)
+			throws SQLException, ClassNotFoundException, ParseException, InterruptedException {
 
 		System.out.println("-------- Oracle JDBC Connection Testing ------");
 
@@ -194,11 +217,11 @@ public class App {
 		ResultSet rs = md.getTables(null, null, "%", null);
 		System.out.println("--- User Tables  ---");
 		while (rs.next()) {
-			if(rs.getString("TABLE_NAME").startsWith("TOR_"))
-			System.out.println(rs.getString("TABLE_NAME"));
+			if (rs.getString("TABLE_NAME").startsWith("TOR_"))
+				System.out.println(rs.getString("TABLE_NAME"));
 		}
 		System.out.println("-------------");
-		
+
 		Statement stmt = connection.createStatement();
 
 		// create Options object
@@ -239,7 +262,7 @@ public class App {
 				+ "x_flag_pro  VARCHAR2(20)," + "last_upd DATE," + "x_id_nc  VARCHAR2(18)," + "x_rcs VARCHAR2(30))";
 
 		stmt.executeUpdate(sql);
-		
+
 		sql = "CREATE TABLE tor_contact " + "(per_title VARCHAR2(15)," + "last_name VARCHAR2(100),"
 				+ "fst_name VARCHAR2(100)," + "email_addr VARCHAR2(150)," + "home_ph_num VARCHAR2(40))";
 
@@ -272,12 +295,11 @@ public class App {
 	private static void fillTables(Connection conn) throws InterruptedException {
 		ExecutorService service = Executors.newCachedThreadPool();
 		service.submit(new TorOrgExtFiller(conn));
-		service.submit(new TorContactFiller(conn));		
+		service.submit(new TorContactFiller(conn));
 		service.submit(new TorAssetFiller(conn));
-		
+
 		service.awaitTermination(1, TimeUnit.DAYS);
 	}
-
 
 	private static String getRandomString(final int len) {
 		String uuid = UUID.randomUUID().toString();
