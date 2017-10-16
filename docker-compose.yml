@@ -24,15 +24,17 @@ services:
      expose:
       - "2181"
       - "9092"
-    eclipse:
-     image: psharkey/eclipse
-     links:
-      - oracle
-      - mongodb
-     volumes:
-      - /tmp/.X11-unix:/tmp/.X11-unix
-      - ${HOME}/.m2:/root/.m2
-      - ${HOME}/dev:/root/workspace
-     environment:
-      - DISPLAY=:0.0
+    kafka-connect:
+     image: softsky/kafka-connect
+#    eclipse:
+#     image: psharkey/eclipse
+#     links:
+#      - oracle
+#      - mongodb
+#     volumes:
+#      - /tmp/.X11-unix:/tmp/.X11-unix
+#      - ${HOME}/.m2:/root/.m2
+#      - ${HOME}/dev:/root/workspace
+#     environment:
+#      - DISPLAY=:0.0
         
