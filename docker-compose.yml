@@ -20,7 +20,7 @@ services:
       - /mnt/data0/mongo:/data/db:rw
       - /tmp:/tmp:rw
     kafka:
-     image: softsky/kafka
+     image: spotify/kafka
      expose:
       - "2181"
       - "9092"
