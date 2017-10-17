@@ -19,22 +19,20 @@ services:
      volumes:
       - /mnt/data0/mongo:/data/db:rw
       - /tmp:/tmp:rw
-    kafka:
-     image: spotify/kafka
+    confluent-connect:
+     image: softsky/confluent-connect
      expose:
       - "2181"
-      - "9092"
-    kafka-connect:
-     image: softsky/kafka-connect
-#    eclipse:
-#     image: psharkey/eclipse
-#     links:
-#      - oracle
-#      - mongodb
-#     volumes:
-#      - /tmp/.X11-unix:/tmp/.X11-unix
-#      - ${HOME}/.m2:/root/.m2
-#      - ${HOME}/dev:/root/workspace
-#     environment:
-#      - DISPLAY=:0.0
+      - "9092"     
+    eclipse:
+     image: psharkey/eclipse
+     links:
+      - oracle
+      - mongodb
+     volumes:
+      - /tmp/.X11-unix:/tmp/.X11-unix
+      - ${HOME}/.m2:/root/.m2
+      - ${HOME}/dev:/root/workspace
+     environment:
+      - DISPLAY=:0.0
         
